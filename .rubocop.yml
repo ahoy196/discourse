@@ -7,3 +7,13 @@ Discourse/NoAddReferenceOrAliasesActiveRecordMigration:
 
 Discourse/NoResetColumnInformationInMigrations:
   Enabled: true
+
+RSpec/ContextWording:
+  Enabled: true
+  Prefixes:
+    - when
+    - with
+    - without
+    - for
+    - while
+    - if
