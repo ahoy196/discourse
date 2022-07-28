@@ -740,7 +740,7 @@ RSpec.describe PostAlerter do
       end
     end
 
-    context "wthi message to users" do
+    context "with message to users" do
       fab!(:pm_topic) do
         Fabricate(:private_message_topic,
                   user: alice,
