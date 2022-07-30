@@ -31,12 +31,12 @@ export function setupRenderingTest(hooks) {
       timezone: "Australia/Brisbane",
     });
     this.currentUser = currentUser;
-    this.owner.unregister("current-user:main");
-    this.owner.register("current-user:main", currentUser, {
+    this.owner.unregister("service:current-user");
+    this.owner.register("service:current-user", currentUser, {
       instantiate: false,
     });
-    this.owner.inject("component", "currentUser", "current-user:main");
-    this.owner.inject("service", "currentUser", "current-user:main");
+    this.owner.inject("component", "currentUser", "service:current-user");
+    this.owner.inject("service", "currentUser", "service:current-user");
 
     this.owner.unregister("topic-tracking-state:main");
     this.owner.register(
@@ -85,7 +85,7 @@ export default function (name, hooks, opts) {
 
   test(name, async function (assert) {
     if (opts.anonymous) {
-      this.owner.unregister("current-user:main");
+      this.owner.unregister("service:current-user");
     }
 
     if (opts.beforeEach) {

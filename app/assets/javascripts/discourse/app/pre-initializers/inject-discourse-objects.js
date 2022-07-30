@@ -4,7 +4,6 @@ import TopicTrackingState, {
 import DiscourseLocation from "discourse/lib/discourse-location";
 import Session from "discourse/models/session";
 import Site from "discourse/models/site";
-import User from "discourse/models/user";
 import deprecated from "discourse-common/lib/deprecated";
 
 const ALL_TARGETS = ["controller", "component", "route", "model", "adapter"];
@@ -105,11 +104,17 @@ export default {
       dropFrom: "3.0.0",
     });
 
-    const siteSettings = container.lookup("service:site-settings");
+    deprecateRegistration({
+      app,
+      container,
+      oldName: "current-user:main",
+      newName: "service:current-user",
+      since: "2.9.0.beta7",
+      dropFrom: "3.0.0",
+    });
 
-    const currentUser = User.current();
-    app.register("current-user:main", currentUser, { instantiate: false });
-    app.currentUser = currentUser;
+    const siteSettings = container.lookup("service:site-settings");
+    const currentUser = container.lookup("service:current-user");
 
     const topicTrackingState = TopicTrackingState.create({
       messageBus: container.lookup("service:message-bus"),
@@ -161,8 +166,13 @@ export default {
     });
 
     if (currentUser) {
-      ["controller", "component", "route", "service"].forEach((t) => {
-        app.inject(t, "currentUser", "current-user:main");
+      ["controller", "component", "route"].forEach((t) => {
+        app.inject(t, "currentUser", "service:current-user");
+      });
+      injectServiceIntoService({
+        app,
+        property: "currentUser",
+        specifier: "service:current-user",
       });
     }
 
