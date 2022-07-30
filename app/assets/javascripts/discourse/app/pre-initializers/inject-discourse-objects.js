@@ -9,12 +9,18 @@ import deprecated from "discourse-common/lib/deprecated";
 
 const ALL_TARGETS = ["controller", "component", "route", "model", "adapter"];
 
-function injectServiceIntoService({ container, app, property, specifier }) {
+function injectServiceIntoService({ app, property, specifier }) {
   // app.inject doesn't allow implicit injection of services into services.
   // However, we need to do it in order to convert our old service-like objects
   // into true services, without breaking existing implicit injections.
   // This hack will be removed when we remove implicit injections for the Ember 4.0 update.
-  container.lookup(specifier);
+
+  // Supplying a specific injection with the same property name prevents the infinite
+  // which would be caused by injecting a service into itself
+  app.register("discourse:null", null, { instantiate: false });
+  app.inject(specifier, property, "discourse:null");
+
+  // Bypass the validation in `app.inject` by adding directly to the array
   app.__registry__._typeInjections["service"].push({
     property,
     specifier,
@@ -138,20 +144,17 @@ export default {
 
     app.inject("service", "session", "session:main");
     injectServiceIntoService({
-      container,
       app,
       property: "messageBus",
       specifier: "service:message-bus",
     });
     injectServiceIntoService({
-      container,
       app,
       property: "siteSettings",
       specifier: "service:site-settings",
     });
     app.inject("service", "topicTrackingState", "topic-tracking-state:main");
     injectServiceIntoService({
-      container,
       app,
       property: "keyValueStore",
       specifier: "service:key-value-store",
